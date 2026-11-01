@@ -1,0 +1,8 @@
+# Ne jamais publier de configurations complètes ou de secrets
+*.conf
+*.key
+*.pem
+*.lic
+secrets*
+.DS_Store
+Thumbs.db

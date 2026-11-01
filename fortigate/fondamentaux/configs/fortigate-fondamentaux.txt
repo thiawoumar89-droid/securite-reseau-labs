@@ -1,0 +1,79 @@
+# FortiGate VM 7.4.12 — lab fondamentaux (extraits nettoyés, sans secrets)
+
+config system interface
+    edit port1
+        set mode dhcp
+        set allowaccess ping http https ssh
+        set alias WAN
+        set role wan
+    next
+    edit port2
+        set mode static
+        set ip 192.168.1.1 255.255.255.0
+        set allowaccess ping http https ssh
+        set alias LAN
+        set role lan
+    next
+    edit port3
+        set mode static
+        set ip 172.16.1.1 255.255.255.0
+        set allowaccess ping
+        set alias DMZ
+        set role dmz
+    next
+end
+
+config firewall service group
+    edit "web_ports"
+        set member "HTTP" "HTTPS" "DNS"
+    next
+end
+
+config firewall vip
+    edit "VIP-DMZ-Web"
+        set extip 0.0.0.0
+        set extintf "port1"
+        set mappedip "172.16.1.11"
+        set portforward enable
+        set extport 80
+        set mappedport 80
+    next
+end
+
+config firewall policy
+    edit 1
+        set name "LAN-to-WAN"
+        set srcintf "port2"
+        set dstintf "port1"
+        set srcaddr "all"
+        set dstaddr "all"
+        set action accept
+        set schedule "always"
+        set service "ALL"
+        set nat enable
+        set logtraffic all
+    next
+    edit 2
+        set name "DMZ-to-WAN"
+        set srcintf "port3"
+        set dstintf "port1"
+        set srcaddr "all"
+        set dstaddr "all"
+        set action accept
+        set schedule "always"
+        set service "web_ports"
+        set nat enable
+        set logtraffic all
+    next
+    edit 3
+        set name "WAN-to-DMZ-Web"
+        set srcintf "port1"
+        set dstintf "port3"
+        set srcaddr "all"
+        set dstaddr "VIP-DMZ-Web"
+        set action accept
+        set schedule "always"
+        set service "HTTP"
+        set logtraffic all
+    next
+end

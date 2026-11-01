@@ -1,0 +1,19 @@
+! Cisco 7200 (Dynamips) — simulation du second opérateur (ISP2)
+! Slot 0 : C7200-IO-FE ; slot 1 : PA-FE-TX ; Idle-PC réglé dans GNS3
+hostname ISP2
+!
+interface FastEthernet0/0
+ description Vers Internet (NAT GNS3)
+ ip address 192.168.122.13 255.255.255.0
+ ip nat outside
+ no shutdown
+!
+interface FastEthernet1/0
+ description Vers client FortiGate WAN2
+ ip address 100.64.2.2 255.255.255.252
+ ip nat inside
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 192.168.122.1
+access-list 1 permit 100.64.2.0 0.0.0.3
+ip nat inside source list 1 interface FastEthernet0/0 overload
